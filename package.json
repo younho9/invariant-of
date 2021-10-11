@@ -1,0 +1,68 @@
+{
+  "name": "invariant-of",
+  "version": "0.0.0",
+  "description": "Make TypeScript type system invariant",
+  "keywords": [
+    "typescript",
+    "ts",
+    "types",
+    "type-system",
+    "type system",
+    "utility",
+    "util",
+    "utilities",
+    "invariant",
+    "object"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/younho9/invariant-of.git"
+  },
+  "license": "MIT",
+  "author": "Younho Choo <yo+github@younho9.dev>",
+  "type": "module",
+  "exports": "./index.js",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "format": "prettier --write . --ignore-path ./node_modules/@younho9/prettier-config/.prettierignore",
+    "release": "npx np",
+    "test": "xo && ava && tsd"
+  },
+  "xo": {
+    "prettier": true,
+    "overrides": [
+      {
+        "files": [
+          "*.ts"
+        ],
+        "rules": {
+          "@typescript-eslint/ban-types": [
+            "error",
+            {
+              "types": {
+                "object": false
+              },
+              "extendDefaults": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "prettier": "@younho9/prettier-config",
+  "devDependencies": {
+    "@younho9/prettier-config": "2.2.2",
+    "@younho9/tsconfig": "0.1.0",
+    "ava": "3.15.0",
+    "prettier": "2.4.1",
+    "tsd": "https://github.com/younho9/tsd#prepare",
+    "typescript": "4.4.3",
+    "xo": "0.45.0"
+  }
+}
