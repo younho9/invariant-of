@@ -19,7 +19,7 @@
     "url": "git+https://github.com/younho9/invariant-of.git"
   },
   "license": "MIT",
-  "author": "Younho Choo <yo+github@younho9.dev>",
+  "author": "Younho Choo <yo+github@younho9.com>",
   "type": "module",
   "exports": "./index.js",
   "engines": {
