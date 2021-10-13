@@ -1,21 +1,23 @@
+export type ObjectKey<O extends object> = Exclude<keyof O, symbol>;
+
 /**
  * Using declaration merging feature
  */
 declare global {
   export interface ObjectConstructor {
-    getOwnPropertyNames<T extends object>(o: InvariantOf<T>): Array<keyof T>;
-    keys<T extends object>(o: InvariantOf<T>): Array<keyof T>;
-    entries<T extends object>(o: InvariantOf<T>): Array<[keyof T, T[keyof T]]>;
+    getOwnPropertyNames<T extends object>(
+      o: InvariantOf<T>,
+    ): Array<ObjectKey<T>>;
+
+    keys<T extends object>(o: InvariantOf<T>): Array<ObjectKey<T>>;
+
+    entries<T extends object>(
+      o: InvariantOf<T>,
+    ): Array<[ObjectKey<T>, T[ObjectKey<T>]]>;
   }
 }
 
-/**
- * Helper for `InvariantOf` and is not useful on its own
- */
-export declare class Shape<Base extends object> {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  protected readonly __keys__: keyof Base;
-}
+declare const _keys: unique symbol;
 
 /**
  * Invariant type of object type
@@ -28,7 +30,7 @@ export declare type InvariantOf<
     ? InvariantOf<{
         [KeyType in keyof Base]: InvariantOf<Base[KeyType], true>;
       }>
-    : Base & Shape<Base>
+    : Base & {readonly [_keys]: keyof Base}
   : Base;
 
 /**
