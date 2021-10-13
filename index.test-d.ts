@@ -31,17 +31,17 @@ interface SameInterface {
 }
 
 class BaseClass {
-  foo!: number;
-  bar?: string;
+  declare foo: number;
+  declare bar?: string;
 }
 
 class SubClass extends BaseClass {
-  baz: number | undefined;
+  declare baz: number | undefined;
 }
 
 class SameClass {
-  foo!: number;
-  bar?: string;
+  declare foo: number;
+  declare bar?: string;
 }
 
 /** Invariance does accept same type */
@@ -79,3 +79,95 @@ const invariantObject = invariantOf({foo: 123, bar: '123'});
 expectType<Array<'foo' | 'bar'>>(Object.getOwnPropertyNames(invariantObject));
 expectType<Array<'foo' | 'bar'>>(Object.keys(invariantObject));
 expectType<Array<["foo" | "bar", string | number]>>(Object.entries(invariantObject)); // prettier-ignore
+
+type DeepBaseType = {
+  foo: number;
+  bar?: BaseType;
+};
+
+type DeepSubType = DeepBaseType & {
+  bar?: SubType;
+  baz: number | undefined;
+};
+
+type DeepSameType = {
+  foo: number;
+  bar?: BaseType;
+};
+
+interface DeepBaseInterface {
+  foo: number;
+  bar?: BaseInterface;
+}
+
+interface DeepSubInterface extends DeepBaseInterface {
+  bar?: SubInterface;
+  baz: number | undefined;
+}
+
+interface DeepSameInterface {
+  foo: number;
+  bar?: BaseInterface;
+}
+
+class DeepBaseClass {
+  declare foo: number;
+  declare bar?: BaseClass;
+}
+
+class DeepSubClass extends DeepBaseClass {
+  declare bar?: SubClass;
+  declare baz: number | undefined;
+}
+
+class DeepSameClass {
+  declare foo: number;
+  declare bar?: BaseClass;
+}
+
+/** Invariance does accept same type */
+expectType<DeepBaseType>({} as DeepBaseType);
+expectType<InvariantOf<DeepBaseType>>({} as InvariantOf<DeepBaseType>);
+expectType<InvariantOf<DeepBaseInterface>>({} as InvariantOf<DeepBaseInterface>); // prettier-ignore
+expectType<InvariantOf<DeepBaseClass>>({} as InvariantOf<DeepBaseClass>);
+
+/** Invariance does accept equal structure type */
+expectType<DeepBaseType>({} as DeepSameType);
+expectType<InvariantOf<DeepBaseType>>({} as InvariantOf<DeepSameType>);
+expectType<InvariantOf<DeepSameInterface>>({} as InvariantOf<DeepSameInterface>); // prettier-ignore
+expectType<InvariantOf<DeepSameClass>>({} as InvariantOf<DeepSameClass>);
+
+/** Invariance does not accept sub type */
+expectAssignable<DeepBaseType>({} as DeepSubType);
+expectNotAssignable<InvariantOf<DeepBaseType>>({} as InvariantOf<DeepSubType>);
+expectNotAssignable<InvariantOf<DeepBaseInterface>>({} as InvariantOf<DeepSubInterface>); // prettier-ignore
+expectNotAssignable<InvariantOf<DeepBaseClass>>({} as InvariantOf<DeepSubClass>); // prettier-ignore
+
+/** Invariance does not accept super type */
+expectNotAssignable<DeepSubType>({} as DeepBaseType);
+expectNotAssignable<InvariantOf<DeepSubType>>({} as InvariantOf<DeepBaseType>);
+expectNotAssignable<InvariantOf<DeepSubInterface>>({} as InvariantOf<DeepBaseInterface>); // prettier-ignore
+expectNotAssignable<InvariantOf<DeepSubClass>>({} as InvariantOf<DeepBaseClass>); // prettier-ignore
+
+/** Invariant type is subtype of default type */
+expectAssignable<DeepBaseType>({} as InvariantOf<DeepBaseType>);
+expectAssignable<DeepBaseInterface>({} as InvariantOf<DeepBaseInterface>);
+expectAssignable<DeepBaseClass>({} as InvariantOf<DeepBaseClass>);
+
+const deepInvariantObject = invariantOf(
+  {
+    foo: 123,
+    bar: {
+      foo: 123,
+      bar: '123',
+    },
+  },
+  {
+    deep: true,
+  },
+);
+
+/** Invariant type is useful to iterate object */
+expectType<Array<'foo' | 'bar'>>(Object.getOwnPropertyNames(deepInvariantObject.bar)); // prettier-ignore
+expectType<Array<'foo' | 'bar'>>(Object.keys(deepInvariantObject));
+expectType<Array<["foo" | "bar", number | InvariantOf<{ foo: number, bar: string }>]>>(Object.entries(deepInvariantObject)); // prettier-ignore
