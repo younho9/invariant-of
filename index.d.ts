@@ -48,3 +48,5 @@ export declare function invariantOf<Base extends object>(
     deep: boolean;
   },
 ): InvariantOf<Base>;
+
+export {};
