@@ -16,13 +16,22 @@ Therefore, there are [some limitations](https://github.com/microsoft/TypeScript/
 
 However, if use invariant type system, the following typing is possible.
 
+<!-- prettier-ignore-start -->
 ```typescript
-export interface ObjectConstructor {
-  getOwnPropertyNames<T extends object>(o: T): Array<keyof T>;
-  keys<T extends object>(o: T): Array<keyof T>;
-  entries<T extends object>(o: T): Array<[keyof T, T[keyof T]]>;
+export type ObjectKey<O extends object> = Exclude<keyof O, symbol>;
+
+/**
+ * Using declaration merging feature
+ */
+declare global {
+  export interface ObjectConstructor {
+    getOwnPropertyNames<T extends object>(o: InvariantOf<T>): Array<ObjectKey<T>>;
+    keys<T extends object>(o: InvariantOf<T>): Array<ObjectKey<T>>;
+    entries<T extends object>(o: InvariantOf<T>): Array<[ObjectKey<T>, T[ObjectKey<T>]]>;
+  }
 }
 ```
+<!-- prettier-ignore-end -->
 
 It has similar benefit to using a [Nominal Type System](https://basarat.gitbook.io/typescript/main-1/nominaltyping).
 
@@ -70,8 +79,6 @@ npm install invariant-of
 ## Usage
 
 ```typescript
-import {invariantOf, InvariantOf} from 'invariant-of';
-
 interface Base {
   foo: number;
   bar?: string;
@@ -84,7 +91,7 @@ interface Derived extends Base {
 const someObject: Base = {foo: 123, bar: 'hello'};
 const derivedObject: Derived = {foo: 123, bar: 'hello', baz: 'bye'};
 
-function getKeys(args: InvariantOf<Base>): Array<keyof Base> {
+function getKeys(args: InvariantOf<Base>) {
   return Object.keys(args);
 }
 
