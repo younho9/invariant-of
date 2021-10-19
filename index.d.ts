@@ -1,4 +1,4 @@
-export type ObjectKey<O extends object> = Exclude<keyof O, symbol>;
+export type StringKeyOf<O extends object> = Extract<keyof O, string>;
 
 /**
  * Using declaration merging feature
@@ -7,17 +7,23 @@ declare global {
   export interface ObjectConstructor {
     getOwnPropertyNames<T extends object>(
       o: InvariantOf<T>,
-    ): Array<ObjectKey<T>>;
+    ): Array<StringKeyOf<T>>;
 
-    keys<T extends object>(o: InvariantOf<T>): Array<ObjectKey<T>>;
+    keys<T extends object>(o: InvariantOf<T>): Array<StringKeyOf<T>>;
 
     entries<T extends object>(
       o: InvariantOf<T>,
-    ): Array<[ObjectKey<T>, T[ObjectKey<T>]]>;
+    ): Array<[StringKeyOf<T>, T[StringKeyOf<T>]]>;
   }
 }
 
-declare const _keys: unique symbol;
+declare const _: unique symbol;
+
+export declare type InvariantProp<Type> = (arg: Type) => Type;
+
+export declare type InvariantSignature<Type> = {
+  readonly [_]: InvariantProp<Type>;
+};
 
 /**
  * Invariant type of object type
@@ -25,13 +31,11 @@ declare const _keys: unique symbol;
 export declare type InvariantOf<
   Base,
   IsDeep extends boolean = false,
-> = Base extends object
-  ? IsDeep extends true
-    ? InvariantOf<{
-        [KeyType in keyof Base]: InvariantOf<Base[KeyType], true>;
-      }>
-    : Base & {readonly [_keys]: keyof Base}
-  : Base;
+> = IsDeep extends true
+  ? InvariantOf<{
+      [KeyType in keyof Base]: InvariantOf<Base[KeyType], true>;
+    }>
+  : Base & InvariantSignature<Base>;
 
 /**
  * Constructs a invariant object type
@@ -42,6 +46,7 @@ export declare function invariantOf<Base extends object>(
     deep: true;
   },
 ): InvariantOf<Base, true>;
+
 export declare function invariantOf<Base extends object>(
   object: Base,
   options?: {

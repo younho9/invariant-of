@@ -2,6 +2,11 @@ import {expectAssignable, expectNotAssignable, expectType} from 'tsd';
 
 import {invariantOf, InvariantOf} from '.';
 
+expectNotAssignable<InvariantOf<string>>('someString' as InvariantOf<'someString'>); // prettier-ignore
+expectNotAssignable<InvariantOf<string>>('someString' as InvariantOf<'someString'>); // prettier-ignore
+expectNotAssignable<InvariantOf<string | number>>('someString' as InvariantOf<string>); // prettier-ignore
+expectNotAssignable<InvariantOf<string>>('someString' as InvariantOf<string | number>); // prettier-ignore
+
 type BaseType = {
   foo: number;
   bar?: string;
@@ -170,4 +175,4 @@ const deepInvariantObject = invariantOf(
 /** Invariant type is useful to iterate object */
 expectType<Array<'foo' | 'bar'>>(Object.getOwnPropertyNames(deepInvariantObject.bar)); // prettier-ignore
 expectType<Array<'foo' | 'bar'>>(Object.keys(deepInvariantObject));
-expectType<Array<["foo" | "bar", number | InvariantOf<{ foo: number, bar: string }>]>>(Object.entries(deepInvariantObject)); // prettier-ignore
+expectType<Array<["foo" | "bar", InvariantOf<number> | InvariantOf<{ foo: number, bar: string }, true>]>>(Object.entries(deepInvariantObject)); // prettier-ignore
