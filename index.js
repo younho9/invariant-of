@@ -1,3 +1,7 @@
-export function invariantOf(object) {
-  return object;
+export function invariantOf(value) {
+  return value;
+}
+
+export function invariantOfDeep(value) {
+  return value;
 }

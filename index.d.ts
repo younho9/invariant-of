@@ -1,57 +1,61 @@
-export type StringKeyOf<O extends object> = Extract<keyof O, string>;
+import type {Primitive} from 'type-fest';
 
 /**
  * Using declaration merging feature
  */
 declare global {
   export interface ObjectConstructor {
-    getOwnPropertyNames<T extends object>(
-      o: InvariantOf<T>,
-    ): Array<StringKeyOf<T>>;
+    getOwnPropertyNames<T extends object>(o: InvariantOf<T>): Array<keyof T>;
 
-    keys<T extends object>(o: InvariantOf<T>): Array<StringKeyOf<T>>;
+    keys<T extends object>(o: InvariantOf<T>): Array<keyof T>;
 
-    entries<T extends object>(
-      o: InvariantOf<T>,
-    ): Array<[StringKeyOf<T>, T[StringKeyOf<T>]]>;
+    entries<T extends object>(o: InvariantOf<T>): Array<[keyof T, T[keyof T]]>;
   }
 }
 
-declare const _: unique symbol;
+/**
+ * Internal type to generate Invariant type using function signature
+ */
+type InvariantProperty<Type> = (arg: Type) => Type;
 
-export declare type InvariantProp<Type> = (arg: Type) => Type;
+/**
+ * Internal private key to save Invariant property type
+ */
+declare const tag: unique symbol;
 
-export declare type InvariantSignature<Type> = {
-  readonly [_]: InvariantProp<Type>;
+/**
+ * Internal type to generate Invariant type using function signature
+ */
+type InvariantSignature<Type> = {
+  readonly [tag]: InvariantProperty<Type>;
 };
 
 /**
- * Invariant type of object type
+ * Make type as Invariant
+ *
+ * @category Utilities
  */
-export declare type InvariantOf<
-  Base,
-  IsDeep extends boolean = false,
-> = IsDeep extends true
-  ? InvariantOf<{
-      [KeyType in keyof Base]: InvariantOf<Base[KeyType], true>;
-    }>
-  : Base & InvariantSignature<Base>;
+export type InvariantOf<Type> = Type & InvariantSignature<Type>;
 
 /**
- * Constructs a invariant object type
+ * Make type as Invariant deeply
+ *
+ * @category Utilities
  */
-export declare function invariantOf<Base extends object>(
-  object: Base,
-  options: {
-    deep: true;
-  },
-): InvariantOf<Base, true>;
+export type InvariantOfDeep<Type> = Type extends Primitive
+  ? InvariantOf<Type>
+  : InvariantOf<{
+      [KeyType in keyof Type]: InvariantOfDeep<Type[KeyType]>;
+    }>;
 
-export declare function invariantOf<Base extends object>(
-  object: Base,
-  options?: {
-    deep: boolean;
-  },
-): InvariantOf<Base>;
+/**
+ * Constructs a invariant type
+ */
+export function invariantOf<Type>(value: Type): InvariantOf<Type>;
+
+/**
+ * Constructs a deep invariant type
+ */
+export function invariantOfDeep<Type>(value: Type): InvariantOfDeep<Type>;
 
 export {};
